@@ -1,0 +1,32 @@
+dspic33-cmsis-dsp Library for dsPIC33 devices
+Copyright 2026 Microchip Technology Inc. and its subsidiaries.
+
+This software is licensed under the Microchip proprietary license.
+See the LICENSE file in the root of this repository for full terms.
+
+-------------------------------------------------------------------------------
+
+THIRD-PARTY ATTRIBUTION AND LICENSE EXCEPTION
+
+The following file is NOT covered by the Microchip proprietary license and
+remains under its original license:
+
+  File:    Include/arm_math.h
+  Origin:  Arm Limited (CMSIS-DSP)
+  License: Apache License, Version 2.0
+  SPDX:    Apache-2.0
+
+  Copyright (c) 2010-2021 Arm Limited or its affiliates. All rights reserved.
+
+  This file has been substantially modified by Microchip Technology Inc. (2026)
+  to provide API compatibility with the Microchip CMSIS-DSP implementation for
+  dsPIC33 devices. The original ARM CMSIS-DSP API signatures are preserved;
+  all internal implementations are original Microchip code.
+
+  The full text of the Apache License 2.0 can be obtained at:
+  https://www.apache.org/licenses/LICENSE-2.0
+
+-------------------------------------------------------------------------------
+
+All other files in this repository are original Microchip implementations
+and are subject to the Microchip proprietary license terms in the LICENSE file.

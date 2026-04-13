@@ -1,0 +1,16 @@
+build/
+dist/
+private/
+queuelogs/
+debug/
+.generated_files/
+__pycache__/
+**/*.properties
+**/*-*.properties
+**/*.mk
+**/*-*.mk
+**/*.bash
+**/*-*.bash
+*.ctu-info
+*.log
+*.log.inx
