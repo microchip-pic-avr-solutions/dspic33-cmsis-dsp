@@ -1,0 +1,179 @@
+
+
+/* Microchip Technology Inc. and its subsidiaries.  You may use this software 
+ * and any derivatives exclusively with Microchip products. 
+ * 
+ * THIS SOFTWARE IS SUPPLIED BY MICROCHIP "AS IS".  NO WARRANTIES, WHETHER 
+ * EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING ANY IMPLIED 
+ * WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, AND FITNESS FOR A 
+ * PARTICULAR PURPOSE, OR ITS INTERACTION WITH MICROCHIP PRODUCTS, COMBINATION 
+ * WITH ANY OTHER PRODUCTS, OR USE IN ANY APPLICATION. 
+ *
+ * IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE, 
+ * INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE OF ANY KIND 
+ * WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF MICROCHIP HAS 
+ * BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE FORESEEABLE.  TO THE 
+ * FULLEST EXTENT ALLOWED BY LAW, MICROCHIPS TOTAL LIABILITY ON ALL CLAIMS 
+ * IN ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED THE AMOUNT OF FEES, IF 
+ * ANY, THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE.
+ *
+ * MICROCHIP PROVIDES THIS SOFTWARE CONDITIONALLY UPON YOUR ACCEPTANCE OF THESE 
+ * TERMS. 
+ */
+
+/* 
+ * File:   VSUB_q31_test_inputs.c
+ * Author: OpenCode
+ * Comments: Q31 test vectors for mchp_sub_q31
+ * Revision history: 
+ */
+
+#include "../../main.h"
+#include "mchp_math_types.h"
+
+#ifdef VECTOR_LIB_TEST_I
+
+/*
+ * Q31 test data for vector subtraction.
+ * Subtraction saturates: if result > 0x7FFFFFFF -> 0x7FFFFFFF
+ *                        if result < 0x80000000 -> 0x80000000
+ *
+ * 150 element test vectors.
+ */
+
+q31_t VSUB_q31_src1[] = {
+    /* 0-9: Same values -> zero result */
+    0x10000000, 0x20000000, 0x30000000, 0x40000000, 0x50000000,
+    (int)0xF0000000, (int)0xE0000000, (int)0xD0000000, 0x00000000, 0x7FFFFFFF,
+    /* 10-19: Positive - Negative -> positive (may saturate) */
+    0x40000000, 0x60000000, 0x7FFFFFFF, 0x7FFFFFFF, 0x50000000,
+    0x30000000, 0x10000000, 0x20000000, 0x7FFFFFFF, 0x7FFFFFFF,
+    /* 20-29: Negative - Positive -> negative (may saturate) */
+    (int)0xC0000000, (int)0xA0000000, (int)0x80000000, (int)0x80000000, (int)0xB0000000,
+    (int)0xD0000000, (int)0xF0000000, (int)0xE0000000, (int)0x80000000, (int)0x80000000,
+    /* 30-39: Near-zero differences */
+    0x00000001, 0x00000000, 0x00000100, (int)0xFFFFFF00, 0x00008000,
+    (int)0xFFFF8000, 0x00000001, (int)0xFFFFFFFF, 0x00000002, (int)0xFFFFFFFE,
+    /* 40-49: Positive saturation: positive - negative = overflow */
+    0x7FFFFFFF, 0x7FFFFFFF, 0x60000000, 0x50000000, 0x40000000,
+    0x7FFFFFFF, 0x70000000, 0x7FFFFFF0, 0x7FFFFFFF, 0x60000000,
+    /* 50-59: Negative saturation: negative - positive = underflow */
+    (int)0x80000000, (int)0x80000000, (int)0xA0000000, (int)0xB0000000, (int)0xC0000000,
+    (int)0x80000000, (int)0x90000000, (int)0x80000010, (int)0x80000000, (int)0xA0000000,
+    /* 60-69: Boundary values */
+    0x7FFFFFFF, (int)0x80000000, 0x7FFFFFFF, (int)0x80000000, 0x00000000,
+    0x00000000, 0x7FFFFFFF, (int)0x80000000, 0x00000001, (int)0xFFFFFFFF,
+    /* 70-79: Random Q31 values set 1 */
+    0x1A2B3C4D, 0x2AAAAAAB, 0x33333333, 0x19999999, 0x0CCCCCCD,
+    0x45678901, 0x12345678, 0x6789ABCD, 0x23456789, 0x56789ABC,
+    /* 80-89: Random Q31 values set 2 */
+    (int)0xE5D4C3B3, (int)0xD5555555, (int)0xCCCCCCCD, (int)0xE6666667, (int)0xF3333333,
+    (int)0xBA987700, (int)0xEDCBA988, (int)0x98765433, (int)0xDCBA9877, (int)0xA9876544,
+    /* 90-99: Alternating patterns */
+    0x55555555, (int)0xAAAAAAAA, 0x55555555, (int)0xAAAAAAAA, 0x7FFF0000,
+    (int)0x80010000, 0x7FFE0000, (int)0x80020000, 0x70000000, (int)0x90000000,
+    /* 100-109: Self-subtraction (all zeros) */
+    0x12345678, (int)0xEDCBA988, 0x7FFFFFFF, (int)0x80000000, 0x00000000,
+    0x55555555, (int)0xAAAAAAAA, 0x3FFFFFFF, (int)0xC0000001, 0x01234567,
+    /* 110-119: Gradual values */
+    0x08000000, 0x10000000, 0x18000000, 0x20000000, 0x28000000,
+    0x30000000, 0x38000000, 0x40000000, 0x48000000, 0x50000000,
+    /* 120-129: Gradual negative values */
+    (int)0xF8000000, (int)0xF0000000, (int)0xE8000000, (int)0xE0000000, (int)0xD8000000,
+    (int)0xD0000000, (int)0xC8000000, (int)0xC0000000, (int)0xB8000000, (int)0xB0000000,
+    /* 130-139: Powers of 2 */
+    0x40000000, 0x20000000, 0x10000000, 0x08000000, 0x04000000,
+    0x02000000, 0x01000000, 0x00800000, 0x00400000, 0x00200000,
+    /* 140-149: Edge cases */
+    0x7FFFFFFF, (int)0x80000000, 0x00000000, 0x7FFFFFFF, (int)0x80000000,
+    0x40000000, (int)0xC0000000, 0x12345678, (int)0xEDCBA988, 0x00000000
+};
+
+q31_t VSUB_q31_src2[] = {
+    /* 0-9: Same values -> zero result */
+    0x10000000, 0x20000000, 0x30000000, 0x40000000, 0x50000000,
+    (int)0xF0000000, (int)0xE0000000, (int)0xD0000000, 0x00000000, 0x7FFFFFFF,
+    /* 10-19: Positive - Negative -> positive (may saturate) */
+    (int)0xC0000000, (int)0xA0000000, (int)0x80000000, (int)0x80000001, (int)0xB0000000,
+    (int)0xD0000000, (int)0xF0000000, (int)0xE0000000, (int)0x80000000, (int)0xFFFFFFFF,
+    /* 20-29: Negative - Positive -> negative (may saturate) */
+    0x40000000, 0x60000000, 0x7FFFFFFF, 0x7FFFFFFF, 0x50000000,
+    0x30000000, 0x10000000, 0x20000000, 0x7FFFFFFF, 0x00000001,
+    /* 30-39: Near-zero differences */
+    0x00000000, 0x00000001, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    /* 40-49: Positive saturation */
+    (int)0x80000000, (int)0xFFFFFFFF, (int)0xA0000000, (int)0xB0000000, (int)0xC0000000,
+    (int)0x80000001, (int)0x90000000, (int)0x80000010, (int)0x80000001, (int)0xA0000001,
+    /* 50-59: Negative saturation */
+    0x7FFFFFFF, 0x00000001, 0x60000000, 0x50000000, 0x40000000,
+    0x7FFFFFFF, 0x70000000, 0x7FFFFFF0, 0x7FFFFFFF, 0x5FFFFFFF,
+    /* 60-69: Boundary values */
+    0x7FFFFFFF, (int)0x80000000, (int)0x80000000, 0x7FFFFFFF, 0x7FFFFFFF,
+    (int)0x80000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    /* 70-79: Random Q31 values set 1 */
+    0x1A2B3C4D, 0x2AAAAAAB, 0x33333333, 0x19999999, 0x0CCCCCCD,
+    0x45678901, 0x12345678, 0x6789ABCD, 0x23456789, 0x56789ABC,
+    /* 80-89: Random Q31 values set 2 */
+    (int)0xE5D4C3B3, (int)0xD5555555, (int)0xCCCCCCCD, (int)0xE6666667, (int)0xF3333333,
+    (int)0xBA987700, (int)0xEDCBA988, (int)0x98765433, (int)0xDCBA9877, (int)0xA9876544,
+    /* 90-99: Alternating patterns */
+    (int)0xAAAAAAAA, 0x55555555, (int)0xAAAAAAAA, 0x55555555, (int)0x80010000,
+    0x7FFF0000, (int)0x80020000, 0x7FFE0000, (int)0x90000000, 0x70000000,
+    /* 100-109: Self-subtraction (all zeros) */
+    0x12345678, (int)0xEDCBA988, 0x7FFFFFFF, (int)0x80000000, 0x00000000,
+    0x55555555, (int)0xAAAAAAAA, 0x3FFFFFFF, (int)0xC0000001, 0x01234567,
+    /* 110-119: Gradual values subtracted from themselves */
+    0x04000000, 0x08000000, 0x0C000000, 0x10000000, 0x14000000,
+    0x18000000, 0x1C000000, 0x20000000, 0x24000000, 0x28000000,
+    /* 120-129: Small negatives subtracted from negatives */
+    (int)0xFC000000, (int)0xF8000000, (int)0xF4000000, (int)0xF0000000, (int)0xEC000000,
+    (int)0xE8000000, (int)0xE4000000, (int)0xE0000000, (int)0xDC000000, (int)0xD8000000,
+    /* 130-139: Powers of 2 subtracted from powers of 2 */
+    0x20000000, 0x10000000, 0x08000000, 0x04000000, 0x02000000,
+    0x01000000, 0x00800000, 0x00400000, 0x00200000, 0x00100000,
+    /* 140-149: Edge cases */
+    (int)0x80000000, 0x7FFFFFFF, 0x7FFFFFFF, (int)0xFFFFFFFF, 0x00000001,
+    (int)0xC0000000, 0x40000000, (int)0xEDCBA988, 0x12345678, 0x00000000
+};
+
+/*
+ * Expected results for saturating Q31 subtraction.
+ */
+q31_t VSUB_q31_er[] = {
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,  /* 0-9: Same - same = 0 */
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF,  /* 10-19: Positive - Negative */
+    0x60000000, 0x20000000, 0x40000000, 0x7FFFFFFF, 0x7FFFFFFF,
+    (int)0x80000000, (int)0x80000000, (int)0x80000000, (int)0x80000000, (int)0x80000000,  /* 20-29: Negative - Positive */
+    (int)0xA0000000, (int)0xE0000000, (int)0xC0000000, (int)0x80000000, (int)0x80000000,
+    0x00000001, (int)0xFFFFFFFF, 0x00000100, (int)0xFFFFFF00, 0x00008000,  /* 30-39: Near-zero differences */
+    (int)0xFFFF8000, 0x00000001, (int)0xFFFFFFFF, 0x00000002, (int)0xFFFFFFFE,
+    0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF,  /* 40-49: Positive saturation */
+    0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF,
+    (int)0x80000000, (int)0x80000000, (int)0x80000000, (int)0x80000000, (int)0x80000000,  /* 50-59: Negative saturation */
+    (int)0x80000000, (int)0x80000000, (int)0x80000000, (int)0x80000000, (int)0x80000000,
+    0x00000000, 0x00000000, 0x7FFFFFFF, (int)0x80000000, (int)0x80000001,  /* 60-69: Boundary values */
+    0x7FFFFFFF, 0x7FFFFFFF, (int)0x80000000, 0x00000001, (int)0xFFFFFFFF,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,  /* 70-79: Self-subtraction = 0 */
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,  /* 80-89: Self-subtraction = 0 */
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x7FFFFFFF, (int)0x80000000, 0x7FFFFFFF, (int)0x80000000, 0x7FFFFFFF,  /* 90-99: Alternating patterns */
+    (int)0x80000000, 0x7FFFFFFF, (int)0x80000000, 0x7FFFFFFF, (int)0x80000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,  /* 100-109: Self-subtraction = 0 */
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x04000000, 0x08000000, 0x0C000000, 0x10000000, 0x14000000,  /* 110-119: Gradual differences */
+    0x18000000, 0x1C000000, 0x20000000, 0x24000000, 0x28000000,
+    (int)0xFC000000, (int)0xF8000000, (int)0xF4000000, (int)0xF0000000, (int)0xEC000000,  /* 120-129: Negative - smaller negative */
+    (int)0xE8000000, (int)0xE4000000, (int)0xE0000000, (int)0xDC000000, (int)0xD8000000,
+    0x20000000, 0x10000000, 0x08000000, 0x04000000, 0x02000000,  /* 130-139: Powers of 2 differences */
+    0x01000000, 0x00800000, 0x00400000, 0x00200000, 0x00100000,
+    0x7FFFFFFF, (int)0x80000000, (int)0x80000001, 0x7FFFFFFF, (int)0x80000000,  /* 140-149: Edge cases */
+    0x7FFFFFFF, (int)0x80000000, 0x2468ACF0, (int)0xDB975310, 0x00000000
+};
+
+#endif
+
+
+

@@ -1,0 +1,336 @@
+/*
+    Jenkins Shared Library:
+    ----------------------
+    shared-library-mcu16ce - https://bitbucket.microchip.com/scm/citd/shared-library-mcu16ce.git
+    shared-library-common - https://bitbucket.microchip.com/scm/citd/shared-library-common.git
+*/
+@Library(['shared-library-mcu16ce@develop', 'shared-library-common@master']) _ 
+
+pipeline {
+    agent {
+        kubernetes {
+            inheritFrom 'pic24f-hello-world-uart-github-deployment'
+            defaultContainer 'xc16-mplabx-sonar-fmpp-python'
+            yamlFile '.citd/cloudprovider.yml'
+        }
+    }
+
+    environment {
+        /*
+            Common Information
+        */
+        NOTIFICATION_EMAIL = 'e50beea8.microchip.com@amer.teams.ms'
+
+        //This is the BitBucket source repo URL to be deployed
+        BITBUCKET_SOURCE_URL = 'https://bitbucket.microchip.com/scm/mcu16ce/dspic33-cmsis-dsp.git'
+
+        /*
+            Project Build Stage Information
+        */
+        MPLABX_PROJECT_SOURCE_LIB = "../Testing/lib_cmsis_dsp_mchp"
+
+        MPLABX_PROJECT_SOURCE_TEST = "../Testing/cmsis_arm_dsp_api,../Testing/cmsis_mchp_dsp_api"
+
+        MPLABX_PROJECT_SOURCE_EXAMPLE = "../Examples"
+        
+        UNAPPROVED_KEYWORDS_OVERRIDE_LIST="NONE"
+
+        DEPLOY_EXCLUDE_FOLDER_FILE_LIST = "mchp_private,.mchp_private,sandbox,.sandbox,Testing,Scripts,ai-reviewer-config.json"
+
+        DEPLOY_BRANCH_LIST = "main,release/v1_0_0"
+
+        GITHUB_PAGES = "GITHUB_PAGES_NONE"
+
+        PROJECT_NAME = "dspic33-cmsis-dsp"
+    }
+
+	triggers {
+        cron(env.BRANCH_NAME == 'develop' ? 'H H 1 * *': '')
+    }
+
+    options {
+        timestamps()
+        timeout(time: 60, unit: 'MINUTES')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Black Duck Scan'){
+            when {
+                anyOf {
+                    allOf {
+                        not { changeRequest() }
+			            anyOf {branch 'main';}
+                    }
+                }
+            }
+            steps{
+                script{
+                    blackDuckScan(
+                        projectName : "${env.PROJECT_NAME}", 
+                        sourcePaths: './',
+                        version: '1.0.0',
+                        format: 'JSON'
+                    )
+                }
+            }
+        }
+
+        stage('Library Project Config Update') {
+            steps {
+                script {
+                    mplabxProjectConfigUpdate(
+                        sourceFilePath: "${env.MPLABX_PROJECT_SOURCE_LIB}"
+                    )
+                }
+            }
+        }
+
+        stage('Library Project Build') {
+            steps {
+                script {
+                    mplabxProjectBuild(
+                        sourceFilePath: "${env.MPLABX_PROJECT_SOURCE_LIB}"
+                    )
+               }
+            }
+        }
+        
+        stage('MISRA-C Check') {
+            steps {
+                script {
+				    misraCheck(
+                        sourceProjectPath: "Source",
+                        cppAdditionalArgs: "-IInclude,-IUtils"
+
+                    )
+                }
+            }
+        }
+
+        stage('Test Project Config Update') {
+            steps {
+                script {
+                    def projects = env.MPLABX_PROJECT_SOURCE_TEST.split(',')
+                    projects.each{ sourcePath ->
+                        mplabxProjectConfigUpdate(
+                        sourceFilePath: "${sourcePath}"
+                    )}
+                }
+            }
+        }
+
+        stage('Test Project Build') {
+            steps {
+                script {
+                    def projects = env.MPLABX_PROJECT_SOURCE_TEST.split(',')
+                    projects.each{ sourcePath ->
+                        mplabxProjectBuild(
+                        sourceFilePath: "${sourcePath}"
+                    )}
+               }
+            }
+        }
+
+        stage('Examples Project Config Update') {
+            steps {
+                script {
+                    mplabxProjectConfigUpdate(
+                        sourceFilePath: "${env.MPLABX_PROJECT_SOURCE_EXAMPLE}"
+                    )
+                }
+            }
+        }
+
+        stage('Examples Project Build') {
+            steps {
+                script {
+                    mplabxProjectBuild(
+                        sourceFilePath: "${env.MPLABX_PROJECT_SOURCE_EXAMPLE}"
+                    )
+               }
+            }
+        }
+
+        // Validate main.json file
+        stage('Validate main.json') {
+            steps {
+                script {
+                    validateMetaData(
+                        unapprovedKeywordsOverrideList: "${UNAPPROVED_KEYWORDS_OVERRIDE_LIST}"
+                    )
+                }
+            }
+        }
+
+        stage('Bitbucket Tag Creation') {
+            when {
+                anyOf {
+                    allOf {
+                        not { changeRequest() }
+                        anyOf {branch 'main';}
+                    }
+                }
+            }
+            
+            steps {
+               script {
+                    bitbucketTagCreation()
+                }
+            }
+        }
+
+        stage('GitHub Repo Creation') {
+            when {
+                anyOf {
+                    allOf {
+                        not { changeRequest() }
+                        expression {
+                            env.BRANCH_NAME == 'main' ||
+                            env.BRANCH_NAME.startsWith('release/')
+                        }
+                    }
+                }
+            }
+            steps {
+                script {
+                    if (env.BRANCH_NAME == "main") {
+                        env.GITHUB_PRODUCTION_ORGANIZATION = "microchip-pic-avr-solutions"
+                    } else {
+                        env.GITHUB_PRODUCTION_ORGANIZATION = "mchpTestArea"
+                    }
+                    githubRepoCreate(
+                            githubOrgName: "${env.GITHUB_PRODUCTION_ORGANIZATION}",
+                            deployBranchList: "${env.DEPLOY_BRANCH_LIST}"
+                    )
+                }
+            }
+        }
+
+        // Deploying the code to GitHub
+        stage('GitHub Deploy Source') {
+            when {
+                anyOf {
+                    allOf {
+                        not { changeRequest() }
+                        expression {
+                            env.BRANCH_NAME == 'main' ||
+                            env.BRANCH_NAME.startsWith('release/')
+                        }
+                    }
+                }
+            }
+
+            steps {
+                script {
+                    githubDeploySource(
+                        bitbucketUrl: "${env.BITBUCKET_SOURCE_URL}",
+                        deployBranchList: "${env.DEPLOY_BRANCH_LIST}",
+                        deployExcludeFileList: "${env.DEPLOY_EXCLUDE_FOLDER_FILE_LIST}",
+                        githubOrgName: "${env.GITHUB_PRODUCTION_ORGANIZATION}",
+                        isPrivateBitbucketRepo: true
+                    )
+                }
+            }
+        }
+        // Creating GitHub release  
+        stage('GitHub release') {
+            when {
+                anyOf {
+                    allOf {
+                        not { changeRequest() }
+                        expression {
+                            env.BRANCH_NAME == 'main' ||
+                            env.BRANCH_NAME.startsWith('release/')
+                        }
+                    }
+                }
+            }
+            
+            steps {
+               script {
+                    githubReleaseCreate(
+                        githubOrgName: "${env.GITHUB_PRODUCTION_ORGANIZATION}",
+                        deployBranchList: "${env.DEPLOY_BRANCH_LIST}",
+                        changeLogFilePath: "CHANGELOG.md"                       
+                    )
+                }
+            }
+        }
+        
+        // Creating GitHub Page  
+        stage('GitHub Page Create') {
+            when {
+                anyOf {
+                    allOf {
+                        not { changeRequest() }
+                        expression {
+                            env.BRANCH_NAME == 'main' ||
+                            env.BRANCH_NAME.startsWith('release/')
+                        }
+                    }
+                }
+            }
+            
+            steps {
+               script {
+                    githubPageCreate(
+                        githubPage: "${env.GITHUB_PAGES}",
+                        githubOrgName: "${env.GITHUB_PRODUCTION_ORGANIZATION}"
+                    )
+                }
+            }
+        }
+        
+        //Deploying the Github content to portal
+        stage('Portal-Deploy') {
+            when {
+                allOf {
+                    not { changeRequest() }
+                    expression {
+                        env.BRANCH_NAME == 'main' ||
+                        env.BRANCH_NAME.startsWith('release/')
+                    }
+                }
+            }
+            steps {
+                script {
+                    boolean isProduction = (env.BRANCH_NAME == 'main')
+
+                    portalDeploy(
+                        githubOrgName: "${env.GITHUB_PRODUCTION_ORGANIZATION}",
+						unapprovedKeywordsOverrideList: "${UNAPPROVED_KEYWORDS_OVERRIDE_LIST}",
+                        isProduction: isProduction,
+                        isPrivateBitbucketRepo: true
+                    )
+                }
+            }
+        }
+    }
+
+    post {
+        success{
+            script {
+                sendMail(
+                    mailId: "${env.NOTIFICATION_EMAIL}",
+                    subject: "Successful Pipeline: ${currentBuild.fullDisplayName}",
+                    body: "Something is right with ${env.BUILD_URL}"
+                )
+            }
+        }
+        failure {
+            script {
+                sendMail(
+                    mailId: "${env.NOTIFICATION_EMAIL}",
+                    subject: "Failure Pipeline: ${currentBuild.fullDisplayName}",
+                    body: "Something is wrong with ${env.BUILD_URL}"
+                )
+            }
+        }
+    }
+}

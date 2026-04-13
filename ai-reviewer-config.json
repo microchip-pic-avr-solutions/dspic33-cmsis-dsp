@@ -1,0 +1,8 @@
+{
+    "version": "1.0.0",
+    "projectContext": "This is a React-Redux project using TypeScript.",
+    "projectRules": [
+        "check MISRA 2012 Rules voilation for mandatory and Required.",
+		"Functionality code review and compare the CMSIS Fixed point q31 API."
+    ]
+}

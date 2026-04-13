@@ -1,0 +1,9 @@
+{
+    "comment": ["This is a config JSON file for building libcmsis-dsp-dspic33-elf-f32.a.",
+                "Change the parameters to your local installation's paths",
+                "or override the values with parameters."],
+    "library": "cmsis-dsp-dspic33-elf-f32",
+    "device": "GENERIC-32DSP-AK",
+    "toolchain": "xc-dsc_toolchain.cmake",
+    "compiler": "C:/Program Files/Microchip/xc-dsc/v3.31"
+}
