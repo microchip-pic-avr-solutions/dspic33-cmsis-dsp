@@ -37,7 +37,7 @@ pipeline {
 
         DEPLOY_EXCLUDE_FOLDER_FILE_LIST = "mchp_private,.mchp_private,sandbox,.sandbox,Testing,Scripts,ai-reviewer-config.json"
 
-        DEPLOY_BRANCH_LIST = "main,release/v1_0_0"
+        DEPLOY_BRANCH_LIST = "main,develop"
 
         GITHUB_PAGES = "GITHUB_PAGES_NONE"
 
@@ -60,26 +60,26 @@ pipeline {
             }
         }
 
-        stage('Black Duck Scan'){
-            when {
-                anyOf {
-                    allOf {
-                        not { changeRequest() }
-			            anyOf {branch 'main';}
-                    }
-                }
-            }
-            steps{
-                script{
-                    blackDuckScan(
-                        projectName : "${env.PROJECT_NAME}", 
-                        sourcePaths: './',
-                        version: '1.0.0',
-                        format: 'JSON'
-                    )
-                }
-            }
-        }
+        // stage('Black Duck Scan'){
+        //     when {
+        //         anyOf {
+        //             allOf {
+        //                 not { changeRequest() }
+		// 	            anyOf {branch 'main';}
+        //             }
+        //         }
+        //     }
+        //     steps{
+        //         script{
+        //             blackDuckScan(
+        //                 projectName : "${env.PROJECT_NAME}", 
+        //                 sourcePaths: './',
+        //                 version: '1.0.0',
+        //                 format: 'JSON'
+        //             )
+        //         }
+        //     }
+        // }
 
         stage('Library Project Config Update') {
             steps {
@@ -192,7 +192,7 @@ pipeline {
                         not { changeRequest() }
                         expression {
                             env.BRANCH_NAME == 'main' ||
-                            env.BRANCH_NAME.startsWith('release/')
+                            env.BRANCH_NAME == 'develop'
                         }
                     }
                 }
@@ -220,7 +220,7 @@ pipeline {
                         not { changeRequest() }
                         expression {
                             env.BRANCH_NAME == 'main' ||
-                            env.BRANCH_NAME.startsWith('release/')
+                            env.BRANCH_NAME == 'develop'
                         }
                     }
                 }
@@ -246,7 +246,7 @@ pipeline {
                         not { changeRequest() }
                         expression {
                             env.BRANCH_NAME == 'main' ||
-                            env.BRANCH_NAME.startsWith('release/')
+                            env.BRANCH_NAME == 'develop'
                         }
                     }
                 }
@@ -271,7 +271,7 @@ pipeline {
                         not { changeRequest() }
                         expression {
                             env.BRANCH_NAME == 'main' ||
-                            env.BRANCH_NAME.startsWith('release/')
+                            env.BRANCH_NAME == 'develop'
                         }
                     }
                 }
@@ -294,7 +294,7 @@ pipeline {
                     not { changeRequest() }
                     expression {
                         env.BRANCH_NAME == 'main' ||
-                        env.BRANCH_NAME.startsWith('release/')
+                        env.BRANCH_NAME == 'develop'
                     }
                 }
             }
