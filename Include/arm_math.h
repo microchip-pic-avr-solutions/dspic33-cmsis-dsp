@@ -1,9 +1,9 @@
 /******************************************************************************
  * @file     arm_math.h
- * @brief    Public header file for mapping CMSIS DSP APIs to dspic33-cmsis-dsp
- * @version  V1.0.0
- * @date     15 April 2026
- * Target Processor: dsPIC33 cores
+ * @brief    Public header file for CMSIS DSP Library
+ * @version  V1.10.0
+ * @date     08 July 2021
+ * Target Processor: Cortex-M and Cortex-A cores
  ******************************************************************************/
 /*
  * Copyright (c) 2010-2021 Arm Limited or its affiliates. All rights reserved.
@@ -28,7 +28,9 @@
  * (2026) to provide compatibility with the Microchip CMSIS-DSP
  * implementation for dsPIC33 devices. Original ARM CMSIS-DSP API
  * signatures are preserved; internal implementations differ entirely.
- * All mchp_* functions are original Microchip implementations.
+ * All mchp_* functions are original Microchip implementations. This file 
+ * modified for mapping public header file for mapping CMSIS DSP APIs to 
+ * dspic33-cmsis-dsp APIs.
  */
 
 #ifndef ARM_MATH_H

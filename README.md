@@ -50,7 +50,7 @@ Functions are provided with datatype: f32, q31.
 ## Folder Structure
 * Documentation - the compiled documentation about the dspic33-cmsis-dsp library.
 * Examples - MPLAB®X IDE Example projects demonstrating some of the floating point operations and fixed operations(e.g., Filtering, Transform, Matrix).
-* Include - the header files (.h) to build dspic33-cmsis-dsp library. Modified CMSIS DSP header files supporting only f32 and q31 functions (as per Apache license)
+* Include - the header files (.h) to build dspic33-cmsis-dsp library. Modified CMSIS DSP header files supporting only f32 and q31 functions.
 * PrivateInclude - the include files (.inc) to build dspic33-cmsis-dsp library.
 * Source - the source files (.s, .c) to build dspic33-cmsis-dsp library.
 * Library - the precompiled library named `libcmsis-dsp-dspic33-elf-f32.a/libcmsis-dsp-dspic33-elf-q31.a` and the scripts to build library file for datatype q31 and f32.
@@ -163,5 +163,3 @@ Currently, this library supports the following Microchip product lines:
 For dsPIC33A device support, please visit:  
 https://www.microchip.com/en-us/products/microcontrollers/dspic-dscs/dspic33a
 
-# License
-This library is licensed under the [![License](https://img.shields.io/badge/license-Apache--2.0-green.svg)](https://github.com/microchip-pic-avr-solutions/dspic33-cmsis-dsp/blob/main/LICENSE).
