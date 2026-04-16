@@ -1,5 +1,0 @@
-device dsPIC33AK512MPS512
-hwtool ICD4
-set communication.speed low
-program "C:\CMSIS\my_branch\cmsis-dsp-mchp\Testing\cmsis_arm_dsp_api\cmsis_dsp_basicmath_q31_test.X\dist\default\production\cmsis_dsp_basicmath_q31_test.X.production.hex"
-quit
